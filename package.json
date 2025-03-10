@@ -1,0 +1,26 @@
+{
+  "name": "AthleteConnect",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "start": "node dist/src/index.js",
+    "dev": "env-cmd -f .env.development nodemon --exec \"ts-node index.ts\" --watch \"src/**/*.ts\"",
+    "prod": "env-cmd -f .env.production node dist/src/index.js",
+    "build": "tsc -p .",
+    "test": "env-cmd -f .env.development jest --detectOpenHandles --forceExit --coverage",
+    "lint": "eslint",
+    "postinstall": "tsc "
+  },
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/mocha": "^10.0.10",
+    "colors": "^1.4.0",
+    "firebase": "^11.4.0",
+    "ts-jest": "^29.2.6"
+  }
+}
