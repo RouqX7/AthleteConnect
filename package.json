@@ -4,12 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
   "scripts": {
-    "start": "node dist/src/index.js",
+    "start": "node dist/index.js",
     "dev": "env-cmd -f .env.development nodemon --exec \"ts-node index.ts\" --watch \"src/**/*.ts\"",
-    "prod": "env-cmd -f .env.production node dist/src/index.js",
+    "prod": "env-cmd -f .env.production node dist/index.js",
     "build": "tsc -p .",
     "test": "env-cmd -f .env.development jest --detectOpenHandles --forceExit --coverage",
     "lint": "eslint",
@@ -19,8 +21,13 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.10",
     "colors": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "env-cmd": "^10.1.0",
+    "express": "^4.21.2",
     "firebase": "^11.4.0",
+    "nodemon": "^3.1.9",
     "ts-jest": "^29.2.6"
   }
 }
