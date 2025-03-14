@@ -27,6 +27,7 @@
     "env-cmd": "^10.1.0",
     "express": "^4.21.2",
     "firebase": "^11.4.0",
+    "firebase-admin": "^13.2.0",
     "joi": "^17.13.3",
     "node-rsa": "^1.1.1",
     "nodemon": "^3.1.9",
