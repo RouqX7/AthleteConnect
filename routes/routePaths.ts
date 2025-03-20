@@ -1,3 +1,6 @@
 export const Routes = {
-    health: '/health'
+    health: '/health',
+    //event routes
+    events: '/events',
+    eventList: '/events/list', 
 }

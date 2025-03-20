@@ -7,4 +7,6 @@ export type Event = {
     date: Date;
     location: string;
     attendees: string[]; // List of player UIDs attending
+    createdAt: Date;
+    updatedAt: Date;
 }
