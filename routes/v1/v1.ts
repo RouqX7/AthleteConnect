@@ -13,11 +13,11 @@ v1Router.get(Routes.health, (req, res) => {
     });
 });
 
-v1Router.get(Routes.post, async(req, res) => {
+v1Router.post(Routes.post, async(req, res) => {
     try {
         const userId = req.body.userId;
-        const authorType = req.body.authorType;
-        res.json(await createPost(req.body,userId,authorType));
+        //const authorType = req.body.authorType;
+        res.json(await createPost(req.body,userId));
     } catch (err:unknown) {
         console.error(err);
         res.status(500).json({
@@ -25,8 +25,6 @@ v1Router.get(Routes.post, async(req, res) => {
             success: false,
         });
     }
-
-
 });
 
 v1Router.get(Routes.post, async(req, res) => {
@@ -42,7 +40,7 @@ v1Router.get(Routes.post, async(req, res) => {
     }
 });
 
-v1Router.get(Routes.post, async(req, res) => {
+v1Router.get(Routes.postList, async(req, res) => {
     try {
         const response = await getAllPosts();
         res.status(response.status).json(response);

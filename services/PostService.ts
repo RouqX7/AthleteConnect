@@ -22,7 +22,6 @@ export const postSchema = Joi.object({
 export const createPost = async (
     post: Partial<Post>,
     userId: string,
-    authorType: "player" | "club"
 ): Promise<DBResponse<string>> => {
     try {
         if(!userId){
