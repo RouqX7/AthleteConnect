@@ -71,7 +71,7 @@ export const createEvent = async(
         if(!id){
             return {
                 success:false,
-                message:"Event ID is required",
+                message:"User ID is required",
                 status:400,
             };
         }
@@ -154,7 +154,7 @@ export const createEvent = async(
         if(!id){
             return {
                 success:false,
-                message:"Event ID is required",
+                message:"User ID is required",
                 status:400,
             };
         }

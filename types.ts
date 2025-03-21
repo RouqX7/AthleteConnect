@@ -56,6 +56,23 @@ export type LocationData = {
     areaName?:string|null;
 }
 
+export type PaginationData = {
+    offset?:number;
+    limit:number;
+    cursor?:string;
+    orderBy?:"asc"|"desc"
+}
+
+export type PaginationResult<T> = {
+    data:T[];
+    count:number;
+    total:number;
+    nextPageToken?:string;
+    previousPageToken?:string;
+    nextPageOffset?:number;
+    previousPageOffset?:number;
+}
+
 export type DatabaseProviderType = 'firebase' | 'mongodb' | 'mysql' | 'postgresql'
 
 
