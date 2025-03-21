@@ -8,4 +8,5 @@ export type Post = {
     likes: number;
     comments: number;
     createdAt: Date;
+    updatedAt: Date;
 };
