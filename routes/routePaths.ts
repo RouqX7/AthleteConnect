@@ -11,4 +11,8 @@ export const Routes = {
     //event routes
     events: '/events',
     eventList: '/events/list', 
+
+    // Message Routes
+    messages: '/messages',
+    messageList: '/messages/list',
 }
