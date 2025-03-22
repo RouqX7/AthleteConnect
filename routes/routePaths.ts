@@ -18,4 +18,8 @@ export const Routes = {
     // Message Routes
     messages: '/messages',
     messageList: '/messages/list',
+
+    // Reaction Routes
+    reactions: '/reactions',
+    reactionList: '/reactions/list',
 }

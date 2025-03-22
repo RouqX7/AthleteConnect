@@ -69,8 +69,3 @@ export {
     firestoreAdmin
 };
 
-export const DBPath = {
-    profile: 'profile',
-    event: "event",
-    post: "post",
-}
