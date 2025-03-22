@@ -22,4 +22,8 @@ export const Routes = {
     // Reaction Routes
     reactions: '/reactions',
     reactionList: '/reactions/list',
+
+    // Notification Routes'
+    notifications: '/notifications',
+    notificationList: '/notifications/list',
 }
