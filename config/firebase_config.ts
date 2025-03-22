@@ -71,5 +71,6 @@ export {
 
 export const DBPath = {
     profile: 'profile',
-    events: 'events',
+    event: "event",
+    post: "post",
 }
