@@ -1,5 +1,8 @@
 export const Routes = {
     health: '/health',
+    // Post Routes
+    post : '/post',
+    postList : '/post/list',
     // User Routes
     login: '/login',
     register: '/register',
