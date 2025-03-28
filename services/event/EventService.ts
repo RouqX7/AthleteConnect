@@ -1,7 +1,7 @@
-import {Event} from  '../models/Event'
-import { DBResponse } from '../types';
-import { firestoreAdmin } from '../config/firebase_config';
-import { DBPath } from '../config/constants';
+import {Event} from  '../../models/Event'
+import { DBResponse } from '../../types';
+import { firestoreAdmin } from '../../config/firebase_config';
+import { DBPath } from '../../config/constants';
 import Joi from 'joi';
 import { v4 as uuidv4 } from "uuid";
 import { abort } from 'process';

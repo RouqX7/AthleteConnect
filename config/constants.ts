@@ -9,5 +9,6 @@ export const DBPath = {
     messages:"messages",
     post: "post",
     reactions: "reactions",
-    events:'events',    
+    events:'events',
+    followers:'followers',
 }

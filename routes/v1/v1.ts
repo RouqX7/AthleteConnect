@@ -7,7 +7,7 @@ import {
   getPost,
   getAllPosts,
   updatePost,
-} from "../../services/PostService";
+} from "../../services/post/PostService";
 import AuthController from "../../services/auth/Auth.controller";
 import {
   createMessage,
@@ -23,23 +23,30 @@ import {
   getAllEvents,
   getEvent,
   updateEvent,
-} from "../../services/EventService";
+} from "../../services/event/EventService";
 
-import{
-    createReaction,
-    deleteReaction,
-    getAllReactions,
-    getReaction,
-    updateReaction
+import {
+  createReaction,
+  deleteReaction,
+  getAllReactions,
+  getReaction,
+  updateReaction
 } from "../../services/reaction/ReactionService";
 
 import {
-    createNotification,
-    deleteNotification,
-    getAllNotifications,
-    getNotification,
-    updateNotification
+  createNotification,
+  deleteNotification,
+  getAllNotifications,
+  getNotification,
+  updateNotification
 } from "../../services/notification/NotificationService";
+
+import {
+  createFollow,
+  deleteFollow,
+  getAllFollows,
+  getFollow
+} from "../../services/follow/FollowService";
 
 const v1Router = Router();
 
@@ -552,9 +559,61 @@ v1Router.post(Routes.notifications, async (req, res) => {
         }
     });
 
+// Follow Routes
+v1Router.post(Routes.follows, async(req, res) => {
+  try {
+  const userId = req.body.userId;
+  res.json(await createFollow(req.body, userId));
+} catch (err:unknown) {
+  console.error(err);
+  res.status(500).json({
+    message: "Internal server error",
+    success: false,
+  });
+}
+});
 
+v1Router.get(Routes.follows, async(req , res) => {
+  try {
+    const id = req.query.id as string;
+    const response = await getFollow(id);
+    res.status(response.status).json(response);
+  } catch (err: unknown){
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
 
+v1Router.get(Routes.followList, async(req,res) => {
+  try {
+    const response = await getAllFollows();
+    res.status(response.status).json(response);
+  } catch (err:unknown) {
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
 
+v1Router.delete(Routes.follows, async(req, res) => {
+  try {
+    const id = req.query?.id as string | undefined;
+    const response = await deleteFollow(id);
+    res.status(response.status).json(response);
+  } catch (err: unknown){
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
 
 
  
