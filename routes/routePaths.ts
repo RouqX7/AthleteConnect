@@ -30,4 +30,8 @@ export const Routes = {
     //Follow Routes
     follows: '/follows',
     followList: '/follows/list',
+
+    //Comment Routes 
+    comments: '/comments',
+    commentList: '/comments/list',
 }
