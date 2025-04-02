@@ -11,4 +11,5 @@ export const DBPath = {
     reactions: "reactions",
     events:'events',
     followers:'followers',
+    tryout:'tryout',
 }
