@@ -11,6 +11,7 @@ export const TryoutService = Joi.object({
     clubId: Joi.string().required(),
     status: Joi.string().valid('pending','accepted','rejected'),
     appliedAt: Joi.date().default(() => new Date ()),
+    updatedAt: Joi.date().default(() => new Date()),
 })
 
 export const createTryout = async (
@@ -32,6 +33,7 @@ export const createTryout = async (
             clubId: tryout.clubId,
             status: tryout.status ?? 'pending',
             appliedAt: new Date(),
+            updatedAt: new Date(),
         } as Tryout;
         const validatedTryout = await TryoutService.validateAsync(tryoutwithDefaults,{
             abortEarly:false,
@@ -105,6 +107,68 @@ export const getAllTryouts = async (): Promise<DBResponse<Tryout[]>> => {
         return {
             success: false,
             message: "Error fetching tryout: "+ (error as Error).message,
+            status: 500,
+        };
+    }
+}
+
+export const deleteTryout =  async(id?: string): Promise<DBResponse<string>> => {
+    if(!id){
+        return {
+            success: false,
+            message: "ID is required",
+            status: 400,
+        };
+    }
+    try {
+        await firestoreAdmin.collection(DBPath.tryout).doc(id).delete();
+        return {
+            success: true,
+            message: "Tryout deleted successfully",
+            status: 200,
+            data: id,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            message: "Error deleting tryout" + (error as Error).message,
+            status: 500,
+        };
+    }
+}
+
+export const updateTryout = async (
+    id: string,
+    data: Partial<Tryout>
+) : Promise<DBResponse<Tryout>> => {
+    if(!id){
+        return {
+            success: false,
+            message: "ID is required",
+            status: 400,
+        };
+    }
+    try {
+        const partialSchema = TryoutService.fork(Object.keys(TryoutService.describe().keys), (field) =>
+            field.optional()
+        );
+        const validatedData = await partialSchema.validateAsync(data, {
+            ...data,
+            updatedAt: new Date(),
+            abortEarly: false,
+        });
+        await firestoreAdmin.collection(DBPath.tryout).doc(id).update(validatedData);
+        const updatedTryout = await getTryout(id);
+        return {
+            success: true,
+            message: "Tryout updated successfully",
+            status: 200,
+            data:updatedTryout.data,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            message: "Error updating tryout" + (error as Error).message,
             status: 500,
         };
     }

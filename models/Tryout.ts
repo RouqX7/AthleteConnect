@@ -4,4 +4,5 @@ export type Tryout = {
     clubId: string;
     status:"pending" | "accepted" | "rejected";
     appliedAt: Date;
+    updatedAt: Date;
 }

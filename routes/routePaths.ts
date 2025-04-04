@@ -34,4 +34,8 @@ export const Routes = {
     //Comment Routes 
     comments: '/comments',
     commentList: '/comments/list',
+
+    //Tryout Routes
+    tryouts: '/tryouts',
+    tryoutList: '/tryouts/list',
 }
