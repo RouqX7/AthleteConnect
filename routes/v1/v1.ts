@@ -7,7 +7,7 @@ import {
   getPost,
   getAllPosts,
   updatePost,
-} from "../../services/PostService";
+} from "../../services/post/PostService";
 import AuthController from "../../services/auth/Auth.controller";
 import {
   createMessage,
@@ -23,23 +23,46 @@ import {
   getAllEvents,
   getEvent,
   updateEvent,
-} from "../../services/EventService";
+} from "../../services/event/EventService";
 
-import{
-    createReaction,
-    deleteReaction,
-    getAllReactions,
-    getReaction,
-    updateReaction
+import {
+  createReaction,
+  deleteReaction,
+  getAllReactions,
+  getReaction,
+  updateReaction
 } from "../../services/reaction/ReactionService";
 
 import {
-    createNotification,
-    deleteNotification,
-    getAllNotifications,
-    getNotification,
-    updateNotification
+  createNotification,
+  deleteNotification,
+  getAllNotifications,
+  getNotification,
+  updateNotification
 } from "../../services/notification/NotificationService";
+
+import {
+  createFollow,
+  deleteFollow,
+  getAllFollows,
+  getFollow
+} from "../../services/follow/FollowService";
+
+import {
+  createComment,
+  getAllComments,
+  deleteComment,
+  getComment,
+  updateComment,
+} from "../../services/comment/CommentService";
+
+import {
+  createTryout,
+  getTryout,
+  getAllTryouts,
+  deleteTryout,
+  updateTryout
+} from "../../services/tryout/TryoutService";
 
 const v1Router = Router();
 
@@ -553,11 +576,203 @@ v1Router.post(Routes.notifications, async (req, res) => {
         }
     });
 
+// Follow Routes
+v1Router.post(Routes.follows, async(req, res) => {
+  try {
+  const userId = req.body.userId;
+  res.json(await createFollow(req.body, userId));
+} catch (err:unknown) {
+  console.error(err);
+  res.status(500).json({
+    message: "Internal server error",
+    success: false,
+  });
+}
+});
 
+v1Router.get(Routes.follows, async(req , res) => {
+  try {
+    const id = req.query.id as string;
+    const response = await getFollow(id);
+    res.status(response.status).json(response);
+  } catch (err: unknown){
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
 
+v1Router.get(Routes.followList, async(req,res) => {
+  try {
+    const response = await getAllFollows();
+    res.status(response.status).json(response);
+  } catch (err:unknown) {
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
 
+v1Router.delete(Routes.follows, async(req, res) => {
+  try {
+    const id = req.query?.id as string | undefined;
+    const response = await deleteFollow(id);
+    res.status(response.status).json(response);
+  } catch (err: unknown){
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
 
+//Comment Routes
+v1Router.post(Routes.comments, async(req,res) => {
+  try {
+    const userId = req.body.userId;
+    res.json(await createComment(req.body,userId));
+  } catch (err:unknown){
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
 
+v1Router.get(Routes.comments, async(req,res) => {
+  try{
+    const id = req.query.id as string;
+    const response = await getComment(id);
+    res.status(response.status).json(response);
+  } catch (err:unknown){
+    console.error(err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      success:false,
+    });
+  }
+});
+
+v1Router.get(Routes.commentList, async(req,res) => {
+  try{
+    const response = await getAllComments();
+    res.status(response.status).json(response);
+  } catch (err:unknown) {
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).json({
+      message: "Internal Server Error",
+      success: false,
+    });
+  }
+});
+
+v1Router.put(Routes.comments, async (req, res) => {
+  try{
+    const id = req.query.id as string;
+    const response = await updateComment(id,req.body);
+    res.status(response.status).json(response);
+  } catch (err:unknown){
+    const error = err as Error;
+    res.status(500).send({
+      status:"Error",
+      message: error.message,
+    });
+  }
+});
+
+v1Router.delete(Routes.comments, async(req,res) => {
+  try{
+    const id = req.query?.id as string | undefined;
+    const response = await deleteComment(id);
+    res.status(response.status).json(response);
+  } catch (err:unknown) {
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+//Tryout Routes
+
+v1Router.post(Routes.tryouts, async(req,res) => {
+  try {
+    const userId = req.body.userId;
+    res.json(await createTryout(req.body,userId));
+  } catch (err:unknown){
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error",
+      success : false,
+    });
+  }
+});
+
+v1Router.get(Routes.tryouts,async(req,res)=> {
+  try{
+    const id = req.query.id as string;
+    const response = await getTryout(id);
+    res.status(response.status).json(response);
+  } catch ( err:unknown){
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
+
+v1Router.get(Routes.tryoutList, async(req,res) => {
+  try{
+    const response = await getAllTryouts();
+    res.status(response.status).json(response);
+  } catch (err:unknown){
+    const error = err as Error;
+    console.error(error.message);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+});
+
+v1Router.put(Routes.tryouts,async(req,res) => {
+  try{
+    const id = req.query.id as string;
+    const response = await updateTryout(id,req.body);
+    res.status(response.status).json(response);
+  } catch (err:unknown){
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+v1Router.delete(Routes.tryouts,async(req,res) => {
+  try{
+    const id = req.query?.id as string | undefined;
+    const response = await deleteTryout(id);
+    res.status(response.status).json(response);
+  } catch (err:unknown){
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
  
 
 

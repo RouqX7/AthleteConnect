@@ -26,4 +26,16 @@ export const Routes = {
     // Notification Routes'
     notifications: '/notifications',
     notificationList: '/notifications/list',
+
+    //Follow Routes
+    follows: '/follows',
+    followList: '/follows/list',
+
+    //Comment Routes 
+    comments: '/comments',
+    commentList: '/comments/list',
+
+    //Tryout Routes
+    tryouts: '/tryouts',
+    tryoutList: '/tryouts/list',
 }
