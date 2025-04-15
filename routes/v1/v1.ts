@@ -74,9 +74,10 @@ v1Router.post(Routes.register, async (req, res) => {
   }
 });
 
-v1Router.get(Routes.login, async (req, res) => {
+v1Router.post(Routes.login, async (req, res) => {
   try {
-    res.json(await auth.login(req.body));
+    const response = await auth.login(req.body);
+    res.status(response.status).json(response);
   } catch (err: unknown) {
     const error = err as Error;
     res.status(500).send({

@@ -20,8 +20,8 @@ export type Profile = {
 export type BasicUserInfo = {
     authInfo: User;
     image?:string|null;
-    firstName:string;
-    lastName:string;
+    firstName:string|null;
+    lastName:string|null;
     bio?:string|null
     isAgreed?: boolean|null;
     location?:LocationData|null;
