@@ -22,7 +22,8 @@ export type BasicUserInfo = {
     image?:string|null;
     firstName:string|null;
     lastName:string|null;
-    bio?:string|null
+    bio?:string|null;
+    sportsOptions?:string[]|null;
     isAgreed?: boolean|null;
     location?:LocationData|null;
     website?: string | null;               // Optional: Personal or company website
@@ -83,5 +84,17 @@ export type DBResponse<T> = {
     data?: T;
     isError?: boolean;
     errorMessage?: string;
+}
+
+export type ResponseCode = 200 | 400 | 401 | 403 | 404 | 429 | 500;
+
+export type PageInfo = {
+    count: number;
+    total: number;
+    nextPageCursor?: string;
+    previousPageCursor?: string;
+    pageNo: number;
+    hasNextPage: boolean;
+    hasPreviousPage:boolean;
 }
 

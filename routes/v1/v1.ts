@@ -53,7 +53,7 @@ import {
   getAllComments,
   deleteComment,
   getComment,
-  updateComment,
+  updatedComment,
 } from "../../services/comment/CommentService";
 
 import {
@@ -635,8 +635,7 @@ v1Router.delete(Routes.follows, async(req, res) => {
 //Comment Routes
 v1Router.post(Routes.comments, async(req,res) => {
   try {
-    const userId = req.body.userId;
-    res.json(await createComment(req.body,userId));
+    res.json(await createComment(req.body));
   } catch (err:unknown){
     console.error(err);
     res.status(500).json({
@@ -677,7 +676,7 @@ v1Router.get(Routes.commentList, async(req,res) => {
 v1Router.put(Routes.comments, async (req, res) => {
   try{
     const id = req.query.id as string;
-    const response = await updateComment(id,req.body);
+    const response = await updatedComment(id,req.body);
     res.status(response.status).json(response);
   } catch (err:unknown){
     const error = err as Error;
@@ -691,6 +690,9 @@ v1Router.put(Routes.comments, async (req, res) => {
 v1Router.delete(Routes.comments, async(req,res) => {
   try{
     const id = req.query?.id as string | undefined;
+    if (!id) {
+      throw new Error("Comment ID is required");
+    }
     const response = await deleteComment(id);
     res.status(response.status).json(response);
   } catch (err:unknown) {
