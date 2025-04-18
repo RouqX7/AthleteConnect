@@ -1,185 +1,86 @@
-import {Post} from '../../models/Post';
+import {Post, postSchema} from '../../models/Post';
 import { DBResponse } from  '../../types';
-import { firestoreAdmin } from  '../../config/firebase_config';
-import { DBPath } from '../../config/constants';
-import Joi from 'joi';
-import { v4 as uuidv4 } from "uuid";
-import { create } from 'domain';
-
-export const postSchema = Joi.object({
-    id: Joi.string().required(),
-    authorId: Joi.string().required(),
-    authorType: Joi.string().valid('player', 'club').default('player'),
-    content: Joi.string().default(''),
-    images: Joi.array().items(Joi.string()).optional(),
-    videos: Joi.array().items(Joi.string()).optional(),
-    likes: Joi.number().default(0),
-    comments: Joi.number().default(0),
-    createdAt: Joi.date().default(() => new Date()),
-    updatedAt: Joi.date().default(() => new Date()),
-});
+import { serviceValidators } from '../../utilities/serviceUtilities';
+import { DataProvider } from '../../src/providers';
 
 export const createPost = async (
-    post: Partial<Post>,
-    userId: string,
+    post:Post,
 ): Promise<DBResponse<string>> => {
-    try {
-        if(!userId){
-            return {
-                success: false,
-                message: "User ID is required",
-                status: 400,
-            }
-        }
-        const postWithDefaults = {
-            id: uuidv4(),
-            authorId : userId,
-            authorType: post.authorType ?? 'player',
-            content: post.content ?? '', 
-            images: post.images ?? [],
-            videos:  post.videos ?? [],
-            likes: post.likes ?? 0,
-            comments: post.comments ?? 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        } as Post;
-        const validatedPost = await postSchema.validateAsync(postWithDefaults,{ 
-            abortEarly: false,
-        });
-        await firestoreAdmin.collection(DBPath.post)
-          .doc(validatedPost.id)
-          .set(validatedPost);
-
-          return {
-            success: true,
-            message: "Post successfully created",
-            status: 200,
-            data: validatedPost.id,
-          };
-    } catch (error) {
-        return { 
-            success: false,
-            message: " Validation failed" + (error as Error).message,
-            status: 400,
-        }
-    }
+    return serviceValidators<Post, string>({
+        schema: postSchema,
+        message: "Post created successfully",
+        errorMessage: "Post creation failed",
+        data: post,
+        next: async (validatedPost: Post) => {
+            const result = await DataProvider.postDB.addPost({ post: validatedPost });
+            return result;
+        },
+    });
+       
+       
 }
 
 export const getPost = async ( id?: string): Promise<DBResponse<Post>> => {
-    if(!id){
-        return {
-            success: false,
-            message: "User ID is required",
-            status: 400,
-        };
-    }
-    try {
-        const result = await firestoreAdmin.collection(DBPath.post).doc(id!).get();
-        if(result.exists){
-            return Promise.resolve({
-                success:true,
-                message: "Post found",
-                status: 200,
-                data: result.data() as Post,
-            });
-        } else {
-            return {
-                success: false,
-                message: " Post not found",
-                status: 404,
-            };
-        }
-    } catch (error) {
-        return { 
-            success: false,
-            message: " Error fetching post: " + (error as Error).message,
-            status: 500,
-        };
-    }
+    return serviceValidators<string, Post>({
+        message: "Post found successfully",
+        errorMessage: "Post not found",
+        data: id,
+        next: async (validatedId: string) => {
+            const result = await DataProvider.postDB.getPost(validatedId);
+            return result;
+        },
+    });
 }
 
 export const getAllPosts = async (): Promise<DBResponse<Post[]>> => {
-    try  {
-        const posts: Post[] = [];
-        const result = await firestoreAdmin.collection(DBPath.post).get();
-        result.forEach((doc) => {
-            posts.push(doc.data() as Post);
-        });
-        return {
-            success: true,
-            message: "Posts found",
-            status: 200,
-            data : posts,
-        };
-    } catch ( error) {
-        return {
-            success: false,
-            message: " Error fetching post: " + (error as Error).message,
-            status: 500,
-        };
-    }
+    return serviceValidators<undefined, Post[]>({
+        message: "Posts found successfully",
+        errorMessage: "Failed to fetch posts",
+        data: undefined,
+        next: async () => {
+            const result = await DataProvider.postDB.getAllPosts();
+            return result;
+        },
+    });
 }
 
 export const deletePost = async (id?: string): Promise<DBResponse<string>> => {
-    if(!id){
-        return {
-            success: false,
-            message: "User ID is required",
-            status: 400,
-        };
-    }
-    try {
-        await firestoreAdmin.collection(DBPath.post).doc(id!).delete();
-        return {
-            success: true,
-            message: "Post deleted",
-            status: 200,
-            data: id!,
-        };
-    } catch (error) {
-        return {
-            success: false,
-            message: " Error deleting post: " + (error as Error).message,
-            status: 500,
-        };
-    }
+    return serviceValidators<string, string>({
+        message: "Post deleted successfully",
+        errorMessage: "Failed to delete post",
+        data: id,
+        next: async (validatedId: string) => {
+            await DataProvider.postDB.deletePost(validatedId);
+            return validatedId;
+        },
+    });
 }
 
 export const updatePost = async (
     id: string,
-    data: Partial<Post>
+    data: Post
 ) : Promise<DBResponse<Post>> => {
-    if(!id){
-        return {
-            success: false,
-            message: "User ID is required",
-            status: 400,
-        };
-    }
-    try { 
-        const partialSchema = postSchema.fork(Object.keys(postSchema.describe().keys), (field) =>
-            field.optional()
-    );
-    const validatedData = await partialSchema.validateAsync(data, {
-        ...data,
-        updatedAt: new Date(),
-        abortEarly: false,
+    return serviceValidators<string, Post>({
+        message: "Post updated successfully",
+        errorMessage: "Failed to update post",
+        data: id,
+        next: async (validatedId: string) => {
+            const result = await DataProvider.postDB.updatePost(validatedId, data);
+            return result;
+        },
     });
-    await firestoreAdmin.collection(DBPath.post).doc(id).update(validatedData);
-    const updatedPost = await getPost(id);
-    return {
-        success:true,
-        message:"Post updated successfully",
-        status:200,
-        data:updatedPost.data,
-    };
-    } catch (error) {
-        return {
-            success: false,
-            message: "Error updating event: " + (error as Error).message,
-            status: 500,
-        };
-    }
+}
+
+export const getPostByField = async (field: string, value: string): Promise<DBResponse<Post[]>> => {
+    return serviceValidators<{ field: string, value: string }, Post[]>({
+        message: "Posts found successfully",
+        errorMessage: "Failed to fetch posts",
+        data: { field, value },
+        next: async (validatedData: { field: string, value: string }) => {
+            const result = await DataProvider.postDB.getPostByField(validatedData.field, validatedData.value);
+            return result;
+        },
+    });
 }
 
 

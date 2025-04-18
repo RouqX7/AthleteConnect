@@ -6,11 +6,22 @@ import {
     firebaseAuthAdmin,
     firebaseAuthClient,
     firestoreAdmin,
-  } from "../../config/firebase_config";
-  import Log from "../../helpers/logger";
+} from "../../config/firebase_config";
+import Log from "../../helpers/logger";
 import { DBPath } from "../../config/constants";
 import { defaultProfile } from "../../helpers/ModelMocks";
+import leoProfanity from 'leo-profanity';
+import fs from 'fs';
+import path from 'path';
 
+// Load the default dictionary at startup
+leoProfanity.loadDictionary('en');
+// Load custom profanity words from a JSON file if it exists
+const customWordsPath = path.resolve(__dirname, '../../customProfanityWords.json');
+if (fs.existsSync(customWordsPath)) {
+    const customWords = JSON.parse(fs.readFileSync(customWordsPath, 'utf-8'));
+    leoProfanity.add(customWords);
+}
 
 class FirebaseAuth implements IAuth{
     async login(data: Record<string, unknown>): Promise<DBResponse<{ token: string; uid: string; }>> {
@@ -77,6 +88,36 @@ class FirebaseAuth implements IAuth{
           };
         }
       }
+
+      async validateUsername(username: string, userId?: string): Promise<{ valid: boolean; message?: string }> {
+        if (!username) {
+            return { valid: false, message: 'Username is required' };
+        }
+        const normalized = username.toLowerCase();
+    // Load custom words again (ensure up-to-date)
+    let customWords: string[] = [];
+    const customWordsPath = path.resolve(__dirname, '../../customProfanityWords.json');
+    if (fs.existsSync(customWordsPath)) {
+        customWords = JSON.parse(fs.readFileSync(customWordsPath, 'utf-8'));
+    }
+    const containsCustomProfanity = customWords.some(word => normalized.includes(word));
+    console.log('Checking username for profanity:', normalized, 'Profanity detected:', leoProfanity.check(normalized), 'Custom detected:', containsCustomProfanity);
+    if (leoProfanity.check(normalized) || containsCustomProfanity) {
+            return { valid: false, message: 'Username contains inappropriate language' };
+        }
+        // Check uniqueness in Firestore
+        const usersRef = firestoreAdmin.collection(DBPath.profile);
+        const snapshot = await usersRef.where('user.authInfo.username', '==', username).get();
+        if (!snapshot.empty) {
+            // If updating, allow if the username belongs to the same user
+            const isOwnUsername = userId && snapshot.docs.some(doc => doc.id === userId);
+            if (!isOwnUsername) {
+                return { valid: false, message: 'Username is already taken' };
+            }
+        }
+        return { valid: true };
+    }
+
     async register(data: Record<string, unknown>): Promise<DBResponse<{ token: string; uid: string; }>> {
         const {
             email,
@@ -102,13 +143,28 @@ class FirebaseAuth implements IAuth{
               success: false,
               message: "Email and password are required",
               status: 400,
-            });
+            }); // message is always a string here
           }
           try {
             validateStringType({
                 values: [email,password],
                 errorMessage: 'Email and password must be of type string',
             });
+            if (!username) {
+                return Promise.resolve({
+                    success: false,
+                    message: "Username is required",
+                    status: 400,
+                });
+            }
+            const usernameValidation = await this.validateUsername(username);
+            if (!usernameValidation.valid) {
+                return Promise.resolve({
+                    success: false,
+                    message: usernameValidation.message ?? "Username validation failed",
+                    status: 409,
+                }); // message is always a string now
+            }
             const result = await createUserWithEmailAndPassword(
                 firebaseAuthClient,
                 email as string,
@@ -132,7 +188,10 @@ class FirebaseAuth implements IAuth{
                     image,
                     isAgreed,
                     ...dp.user,
-
+                    authInfo: {
+                        ...dp.user.authInfo,
+                        username: username,
+                    },
                 },
             };
 

@@ -232,13 +232,13 @@ v1Router.get(Routes.generateToken, async (req, res) => {
 
 v1Router.post(Routes.events, async (req, res) => {
   try {
-    const userId = req.body.userId;
-    res.json(await createEvent(req.body, userId));
+    const response = await createEvent(req.body);
+    res.status(response.status).json(response);
   } catch (err: unknown) {
-    console.error(err);
-    res.status(500).json({
-      message: "Internal server error",
-      success: false,
+    const error = err as Error;
+    res.status(500).send({
+      status: "error",
+      message: error.message,
     });
   }
 });
@@ -301,9 +301,8 @@ v1Router.put(Routes.events, async (req, res) => {
 
 v1Router.post(Routes.post, async (req, res) => {
   try {
-    const userId = req.body.userId;
     //const authorType = req.body.authorType;
-    res.json(await createPost(req.body, userId));
+    res.json(await createPost(req.body));
   } catch (err: unknown) {
     console.error(err);
     res.status(500).json({
